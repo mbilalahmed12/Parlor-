@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get all reviews including pending (admin only)
-router.get('/admin/all', auth, async (req, res) => {
+router.get('/admin/all', auth, authorize('owner', 'admin'), async (req, res) => {
   try {
     const reviews = await Review.find().populate('service').sort({ createdAt: -1 });
     res.json(reviews);

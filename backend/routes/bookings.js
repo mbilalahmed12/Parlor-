@@ -42,7 +42,7 @@ router.post('/', [
 });
 
 // Get all bookings (admin only)
-router.get('/', auth, async (req, res) => {
+router.get('/', auth, authorize('owner', 'admin'), async (req, res) => {
   try {
     const bookings = await Booking.find().populate('service').sort({ bookingDate: 1 });
     res.json(bookings);
@@ -52,7 +52,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Get booking by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, authorize('owner', 'admin'), async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id).populate('service');
     if (!booking) return res.status(404).json({ message: 'Booking not found' });

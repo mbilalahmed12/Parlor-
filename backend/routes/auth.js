@@ -25,8 +25,8 @@ router.post('/register', [
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const usersCount = await User.countDocuments();
-    const role = usersCount === 0 ? 'owner' : 'admin';
+    const existingUsers = await User.countDocuments();
+    const role = existingUsers === 0 ? 'owner' : 'admin';
 
     // Create new user
     user = new User({
@@ -39,7 +39,7 @@ router.post('/register', [
     await user.save();
 
     // Generate JWT
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE
     });
 
@@ -75,7 +75,7 @@ router.post('/login', [
     }
 
     // Generate JWT
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE
     });
 
@@ -85,16 +85,24 @@ router.post('/login', [
   }
 });
 
-// Current authenticated user
 router.get('/me', auth, async (req, res) => {
-  res.json({
-    user: {
-      id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      role: req.user.role,
-    },
-  });
+  try {
+    const user = await User.findById(req.userId).select('name email role');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
 });
 
 module.exports = router;

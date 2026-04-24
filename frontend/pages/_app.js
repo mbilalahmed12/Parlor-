@@ -1,7 +1,15 @@
 import '@/styles/globals.css';
 import { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
+import { useAuthStore } from '@/lib/store';
 
 export default function App({ Component, pageProps }) {
+  const hydrate = useAuthStore((state) => state.hydrate);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
   return (
     <>
       <Component {...pageProps} />

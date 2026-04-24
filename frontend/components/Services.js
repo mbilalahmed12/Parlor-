@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { servicesAPI } from '@/lib/api';
 import { FiArrowRight } from 'react-icons/fi';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Services() {
   const [services, setServices] = useState([]);
@@ -83,14 +82,12 @@ export default function Services() {
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow"
               >
                 {/* Image placeholder */}
-                <div className="h-48 relative bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                   {service.image ? (
-                    <Image
+                    <img
                       src={service.image}
                       alt={service.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="text-5xl text-primary">✨</div>

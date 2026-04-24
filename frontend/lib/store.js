@@ -45,14 +45,15 @@ export const useAuthStore = create((set) => ({
   hydrate: () => {
     const token = localStorage.getItem('token');
     if (token) {
-      set({ token });
-      authAPI.me()
+      set({ token, isLoading: true });
+      authAPI
+        .me()
         .then((response) => {
-          set({ user: response.data.user });
+          set({ user: response.data.user, isLoading: false });
         })
         .catch(() => {
           localStorage.removeItem('token');
-          set({ token: null, user: null });
+          set({ token: null, user: null, isLoading: false });
         });
     }
   },

@@ -9,13 +9,15 @@ import Services from '@/components/admin/Services';
 import Bookings from '@/components/admin/Bookings';
 import Reviews from '@/components/admin/Reviews';
 import Settings from '@/components/admin/Settings';
+import Owner from '@/components/admin/Owner';
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'services', label: 'Services', icon: '💇' },
   { id: 'bookings', label: 'Bookings', icon: '📅' },
   { id: 'reviews', label: 'Reviews', icon: '⭐' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
+  { id: 'settings', label: 'Settings', icon: '⚙️', ownerOnly: true },
+  { id: 'owner', label: 'Owner Controls', icon: '🔐', ownerOnly: true },
 ];
 
 export default function Admin() {
@@ -23,7 +25,8 @@ export default function Admin() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, token, logout } = useAuthStore();
   const router = useRouter();
-  const canManageWebsite = user?.role === 'owner' || user?.role === 'admin';
+  const isOwner = user?.role === 'owner';
+  const availableTabs = tabs.filter((tab) => !tab.ownerOnly || isOwner);
 
   useEffect(() => {
     if (!token) {
@@ -32,11 +35,10 @@ export default function Admin() {
   }, [token, router]);
 
   useEffect(() => {
-    if (token && user && !canManageWebsite) {
-      toast.error('You do not have permission to access admin controls.');
-      router.push('/');
+    if (!availableTabs.some((tab) => tab.id === activeTab)) {
+      setActiveTab('dashboard');
     }
-  }, [token, user, canManageWebsite, router]);
+  }, [availableTabs, activeTab]);
 
   const handleLogout = () => {
     logout();
@@ -44,7 +46,7 @@ export default function Admin() {
     toast.success('Logged out successfully');
   };
 
-  if (!token || !user) return null;
+  if (!token) return null;
 
   return (
     <>
@@ -78,7 +80,7 @@ export default function Admin() {
               </div>
 
               <nav className="space-y-3 mb-8">
-                {tabs.map((tab) => (
+                {availableTabs.map((tab) => (
                   <motion.button
                     key={tab.id}
                     onClick={() => {
@@ -102,6 +104,7 @@ export default function Admin() {
               <div className="border-t border-gray-700 pt-6">
                 <p className="text-sm text-gray-400 mb-2">Logged in as:</p>
                 <p className="font-semibold mb-4">{user?.name}</p>
+                <p className="text-xs text-gray-400 mb-4 uppercase tracking-widest">Role: {user?.role || 'admin'}</p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -128,7 +131,7 @@ export default function Admin() {
               <FiMenu />
             </motion.button>
             <h2 className="text-3xl font-bold text-gray-800">
-              {tabs.find((t) => t.id === activeTab)?.label}
+              {availableTabs.find((t) => t.id === activeTab)?.label || 'Dashboard'}
             </h2>
             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-secondary"></div>
           </div>
@@ -142,11 +145,12 @@ export default function Admin() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {activeTab === 'dashboard' && <DashboardView user={user} canManageWebsite={canManageWebsite} />}
+              {activeTab === 'dashboard' && <DashboardView />}
               {activeTab === 'services' && <Services />}
               {activeTab === 'bookings' && <Bookings />}
               {activeTab === 'reviews' && <Reviews />}
               {activeTab === 'settings' && <Settings />}
+              {activeTab === 'owner' && isOwner && <Owner />}
             </motion.div>
           </AnimatePresence>
         </main>
@@ -155,7 +159,7 @@ export default function Admin() {
   );
 }
 
-function DashboardView({ user, canManageWebsite }) {
+function DashboardView() {
   const [stats, setStats] = useState({
     totalBookings: 0,
     pendingReviews: 0,
@@ -175,12 +179,6 @@ function DashboardView({ user, canManageWebsite }) {
     { title: 'Total Bookings', value: stats.totalBookings, icon: '📅', color: 'from-blue-500 to-cyan-500' },
     { title: 'Pending Reviews', value: stats.pendingReviews, icon: '⏳', color: 'from-yellow-500 to-orange-500' },
     { title: 'Active Services', value: stats.activeServices, icon: '✨', color: 'from-purple-500 to-pink-500' },
-    {
-      title: 'Owner Access',
-      value: canManageWebsite ? `Enabled (${user?.role || 'unknown'})` : 'Disabled',
-      icon: '🔐',
-      color: canManageWebsite ? 'from-emerald-500 to-green-600' : 'from-gray-500 to-gray-700',
-    },
   ];
 
   return (
@@ -196,7 +194,7 @@ function DashboardView({ user, canManageWebsite }) {
         >
           <div className="text-4xl mb-4">{card.icon}</div>
           <h3 className="text-lg font-semibold mb-2">{card.title}</h3>
-          <p className="text-2xl md:text-3xl font-bold break-words">{card.value}</p>
+          <p className="text-4xl font-bold">{card.value}</p>
         </motion.div>
       ))}
     </div>
