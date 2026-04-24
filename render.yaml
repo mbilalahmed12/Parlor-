@@ -14,6 +14,18 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
-        sync: false
-      - key: CORS_ORIGIN
-        sync: false
+        generateValue: true
+
+  - type: web
+    name: parlor-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: BACKEND_INTERNAL_HOSTPORT
+        fromService:
+          name: parlor-backend
+          type: web
+          property: hostport
