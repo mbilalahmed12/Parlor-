@@ -1,0 +1,48 @@
+const mongoose = require('mongoose');
+
+const serviceSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  duration: {
+    type: Number, // in minutes
+    required: true
+  },
+  category: {
+    type: String,
+    enum: ['hair', 'skin', 'nails', 'makeup', 'massage', 'other'],
+    default: 'other'
+  },
+  image: {
+    type: String,
+    default: null
+  },
+  featured: {
+    type: Boolean,
+    default: false
+  },
+  active: {
+    type: Boolean,
+    default: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model('Service', serviceSchema);
