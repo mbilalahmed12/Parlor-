@@ -15,6 +15,8 @@ export default function Services() {
     price: '',
     duration: '',
     category: 'other',
+    mediaType: 'none',
+    mediaUrl: '',
     featured: false,
   });
 
@@ -60,7 +62,11 @@ export default function Services() {
   };
 
   const handleEdit = (service) => {
-    setFormData(service);
+    setFormData({
+      ...service,
+      mediaType: service.mediaType || 'none',
+      mediaUrl: service.mediaUrl || service.image || '',
+    });
     setEditingId(service._id);
     setShowModal(true);
   };
@@ -84,6 +90,8 @@ export default function Services() {
       price: '',
       duration: '',
       category: 'other',
+      mediaType: 'none',
+      mediaUrl: '',
       featured: false,
     });
     setEditingId(null);
@@ -230,6 +238,27 @@ export default function Services() {
                 <option value="massage">Massage</option>
                 <option value="other">Other</option>
               </select>
+
+              <div className="grid grid-cols-2 gap-4">
+                <select
+                  name="mediaType"
+                  value={formData.mediaType || 'none'}
+                  onChange={handleChange}
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+                >
+                  <option value="none">No media</option>
+                  <option value="image">Image background</option>
+                  <option value="video">Video background</option>
+                </select>
+                <input
+                  type="url"
+                  name="mediaUrl"
+                  value={formData.mediaUrl || ''}
+                  onChange={handleChange}
+                  placeholder="Media URL"
+                  className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+                />
+              </div>
 
               <label className="flex items-center gap-3 cursor-pointer">
                 <input

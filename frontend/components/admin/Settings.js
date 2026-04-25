@@ -99,6 +99,18 @@ export default function Settings({ onBack }) {
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary resize-none"
             />
           </div>
+          <div>
+            <label className="block text-sm font-semibold mb-2">Parlor Logo URL</label>
+            <input
+              type="url"
+              name="parlorLogoUrl"
+              value={formData.parlorLogoUrl || ''}
+              onChange={handleChange}
+              placeholder="https://..."
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+            />
+            <p className="text-xs text-gray-500 mt-1">Use a direct image URL for the logo shown with the parlor name.</p>
+          </div>
         </div>
       </motion.section>
 

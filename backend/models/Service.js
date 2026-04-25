@@ -27,6 +27,15 @@ const serviceSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  mediaType: {
+    type: String,
+    enum: ['image', 'video', 'none'],
+    default: 'none'
+  },
+  mediaUrl: {
+    type: String,
+    default: ''
+  },
   featured: {
     type: Boolean,
     default: false

@@ -1,14 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 import { useAuthStore } from '@/lib/store';
 import { useRouter } from 'next/router';
+import { settingsAPI } from '@/lib/api';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [settings, setSettings] = useState(null);
   const { user, token, logout } = useAuthStore();
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await settingsAPI.get();
+        setSettings(response.data);
+      } catch (error) {
+        // Keep default branding if settings are unavailable.
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -31,8 +45,17 @@ export default function Header() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Elite Parlor
+          <Link href="/" className="flex items-center gap-3">
+            {settings?.parlorLogoUrl && (
+              <img
+                src={settings.parlorLogoUrl}
+                alt="Parlor logo"
+                className="w-10 h-10 rounded-full object-cover border border-gray-200"
+              />
+            )}
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {settings?.parlorName || 'Elite Parlor'}
+            </span>
           </Link>
         </motion.div>
 

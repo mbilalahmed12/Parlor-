@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
 // Create service (admin only)
 router.post('/', auth, authorize('owner', 'admin'), async (req, res) => {
   try {
-    const { name, description, price, duration, category, image } = req.body;
+    const { name, description, price, duration, category, image, mediaType, mediaUrl } = req.body;
 
     const service = new Service({
       name,
@@ -36,7 +36,9 @@ router.post('/', auth, authorize('owner', 'admin'), async (req, res) => {
       price,
       duration,
       category,
-      image
+      image,
+      mediaType,
+      mediaUrl
     });
 
     await service.save();
@@ -49,17 +51,19 @@ router.post('/', auth, authorize('owner', 'admin'), async (req, res) => {
 // Update service (admin only)
 router.put('/:id', auth, authorize('owner', 'admin'), async (req, res) => {
   try {
-    const { name, description, price, duration, category, image, featured, active } = req.body;
+    const { name, description, price, duration, category, image, mediaType, mediaUrl, featured, active } = req.body;
 
     let service = await Service.findById(req.params.id);
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
-    service.name = name || service.name;
-    service.description = description || service.description;
+    service.name = name !== undefined ? name : service.name;
+    service.description = description !== undefined ? description : service.description;
     service.price = price !== undefined ? price : service.price;
-    service.duration = duration || service.duration;
-    service.category = category || service.category;
-    service.image = image || service.image;
+    service.duration = duration !== undefined ? duration : service.duration;
+    service.category = category !== undefined ? category : service.category;
+    service.image = image !== undefined ? image : service.image;
+    service.mediaType = mediaType !== undefined ? mediaType : service.mediaType;
+    service.mediaUrl = mediaUrl !== undefined ? mediaUrl : service.mediaUrl;
     service.featured = featured !== undefined ? featured : service.featured;
     service.active = active !== undefined ? active : service.active;
     service.updatedAt = Date.now();

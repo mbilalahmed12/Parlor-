@@ -84,7 +84,25 @@ export default function Services() {
               >
                 {/* Image placeholder */}
                 <div className="relative h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                  {service.image ? (
+                  {service.mediaType === 'video' && service.mediaUrl ? (
+                    <video
+                      src={service.mediaUrl}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : service.mediaType === 'image' && service.mediaUrl ? (
+                    <Image
+                      src={service.mediaUrl}
+                      alt={service.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : service.image ? (
                     <Image
                       src={service.image}
                       alt={service.name}

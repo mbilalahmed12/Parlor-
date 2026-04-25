@@ -51,6 +51,13 @@ export default function Footer() {
         >
           {/* Brand */}
           <motion.div variants={itemVariants}>
+            {settings?.parlorLogoUrl && (
+              <img
+                src={settings.parlorLogoUrl}
+                alt="Parlor logo"
+                className="w-14 h-14 rounded-full object-cover border border-white/20 mb-3"
+              />
+            )}
             <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
               {settings?.parlorName || 'Elite Parlor'}
             </h3>

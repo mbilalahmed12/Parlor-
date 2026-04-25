@@ -23,6 +23,7 @@ const tabs = [
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
   const { user, token, logout } = useAuthStore();
   const router = useRouter();
   const isOwner = user?.role === 'owner';
@@ -39,6 +40,23 @@ export default function Admin() {
       setActiveTab('dashboard');
     }
   }, [availableTabs, activeTab]);
+
+  useEffect(() => {
+    const syncViewport = () => {
+      const desktop = window.innerWidth >= 768;
+      setIsDesktop(desktop);
+      if (desktop) setSidebarOpen(true);
+    };
+
+    syncViewport();
+    window.addEventListener('resize', syncViewport);
+    return () => window.removeEventListener('resize', syncViewport);
+  }, []);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    if (!isDesktop) setSidebarOpen(false);
+  };
 
   const handleLogout = () => {
     logout();
@@ -59,7 +77,7 @@ export default function Admin() {
 
         {/* Sidebar */}
         <AnimatePresence>
-          {sidebarOpen && (
+          {(isDesktop || sidebarOpen) && (
             <motion.aside
               initial={{ x: -300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -83,10 +101,7 @@ export default function Admin() {
                 {availableTabs.map((tab) => (
                   <motion.button
                     key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setSidebarOpen(false);
-                    }}
+                    onClick={() => handleTabChange(tab.id)}
                     whileHover={{ x: 10 }}
                     whileTap={{ scale: 0.95 }}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
@@ -130,9 +145,19 @@ export default function Admin() {
             >
               <FiMenu />
             </motion.button>
-            <h2 className="text-3xl font-bold text-gray-800">
-              {availableTabs.find((t) => t.id === activeTab)?.label || 'Dashboard'}
-            </h2>
+            <div className="flex items-center gap-3">
+              {activeTab !== 'dashboard' && (
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className="px-3 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Back to Dashboard
+                </button>
+              )}
+              <h2 className="text-3xl font-bold text-gray-800">
+                {availableTabs.find((t) => t.id === activeTab)?.label || 'Dashboard'}
+              </h2>
+            </div>
             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-secondary"></div>
           </div>
 

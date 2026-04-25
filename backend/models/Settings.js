@@ -14,6 +14,10 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     default: 'Your premium beauty and wellness destination'
   },
+  parlorLogoUrl: {
+    type: String,
+    default: ''
+  },
   heroVideoUrl: {
     type: String,
     default: null

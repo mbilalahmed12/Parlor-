@@ -29,6 +29,7 @@ router.put('/', auth, authorize('owner'), async (req, res) => {
     const {
       parlorName,
       parlorDescription,
+      parlorLogoUrl,
       heroVideoUrl,
       heroTitle,
       heroSubtitle,
@@ -41,6 +42,7 @@ router.put('/', auth, authorize('owner'), async (req, res) => {
 
     if (parlorName) settings.parlorName = parlorName;
     if (parlorDescription) settings.parlorDescription = parlorDescription;
+    if (parlorLogoUrl !== undefined) settings.parlorLogoUrl = parlorLogoUrl;
     if (heroVideoUrl !== undefined) settings.heroVideoUrl = heroVideoUrl;
     if (heroTitle) settings.heroTitle = heroTitle;
     if (heroSubtitle) settings.heroSubtitle = heroSubtitle;

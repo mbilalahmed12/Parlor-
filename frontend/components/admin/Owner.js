@@ -8,6 +8,7 @@ const isDirectMp4Url = (url) => /^https?:\/\/.+\.mp4(\?.*)?$/i.test(url.trim());
 export default function Owner() {
   const [formData, setFormData] = useState({
     parlorName: '',
+    parlorLogoUrl: '',
     heroTitle: '',
     heroSubtitle: '',
     heroVideoUrl: '',
@@ -22,6 +23,7 @@ export default function Owner() {
 
         setFormData({
           parlorName: current.parlorName || '',
+          parlorLogoUrl: current.parlorLogoUrl || '',
           heroTitle: current.heroTitle || '',
           heroSubtitle: current.heroSubtitle || '',
           heroVideoUrl: current.heroVideoUrl || '',
@@ -46,6 +48,7 @@ export default function Owner() {
     try {
       const payload = {};
       if (formData.parlorName.trim()) payload.parlorName = formData.parlorName.trim();
+      if (formData.parlorLogoUrl.trim()) payload.parlorLogoUrl = formData.parlorLogoUrl.trim();
       if (formData.heroTitle.trim()) payload.heroTitle = formData.heroTitle.trim();
       if (formData.heroSubtitle.trim()) payload.heroSubtitle = formData.heroSubtitle.trim();
       if (formData.heroVideoUrl.trim()) {
@@ -107,6 +110,18 @@ export default function Owner() {
               value={formData.heroTitle}
               onChange={handleChange}
               placeholder="Welcome to Elite Parlor"
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2">Parlor Logo URL</label>
+            <input
+              type="url"
+              name="parlorLogoUrl"
+              value={formData.parlorLogoUrl}
+              onChange={handleChange}
+              placeholder="https://..."
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
             />
           </div>
