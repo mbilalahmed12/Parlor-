@@ -41,7 +41,7 @@ router.put('/', auth, authorize('owner'), async (req, res) => {
 
     if (parlorName) settings.parlorName = parlorName;
     if (parlorDescription) settings.parlorDescription = parlorDescription;
-    if (heroVideoUrl) settings.heroVideoUrl = heroVideoUrl;
+    if (heroVideoUrl !== undefined) settings.heroVideoUrl = heroVideoUrl;
     if (heroTitle) settings.heroTitle = heroTitle;
     if (heroSubtitle) settings.heroSubtitle = heroSubtitle;
     if (contactEmail) settings.contactEmail = contactEmail;

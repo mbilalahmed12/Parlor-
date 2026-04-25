@@ -1,15 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+
+const isDirectMp4Url = (url) => /^https?:\/\/.+\.mp4(\?.*)?$/i.test(url.trim());
 
 export default function Owner() {
   const [formData, setFormData] = useState({
     parlorName: '',
     heroTitle: '',
     heroSubtitle: '',
+    heroVideoUrl: '',
   });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchCurrentSettings = async () => {
+      try {
+        const response = await settingsAPI.get();
+        const current = response.data || {};
+
+        setFormData({
+          parlorName: current.parlorName || '',
+          heroTitle: current.heroTitle || '',
+          heroSubtitle: current.heroSubtitle || '',
+          heroVideoUrl: current.heroVideoUrl || '',
+        });
+      } catch (error) {
+        toast.error('Failed to load current owner settings');
+      }
+    };
+
+    fetchCurrentSettings();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +48,14 @@ export default function Owner() {
       if (formData.parlorName.trim()) payload.parlorName = formData.parlorName.trim();
       if (formData.heroTitle.trim()) payload.heroTitle = formData.heroTitle.trim();
       if (formData.heroSubtitle.trim()) payload.heroSubtitle = formData.heroSubtitle.trim();
+      if (formData.heroVideoUrl.trim()) {
+        if (!isDirectMp4Url(formData.heroVideoUrl)) {
+          toast.error('Please enter a direct MP4 file URL (not a webpage link)');
+          setSaving(false);
+          return;
+        }
+        payload.heroVideoUrl = formData.heroVideoUrl.trim();
+      }
 
       if (Object.keys(payload).length === 0) {
         toast.error('Enter at least one change to save');
@@ -34,7 +65,7 @@ export default function Owner() {
 
       await settingsAPI.update(payload);
       toast.success('Owner changes saved to website settings');
-      setFormData({ parlorName: '', heroTitle: '', heroSubtitle: '' });
+      setFormData((prev) => ({ ...prev, heroVideoUrl: payload.heroVideoUrl || prev.heroVideoUrl }));
     } catch (error) {
       const message = error?.response?.data?.message || 'Owner update failed';
       toast.error(message);
@@ -90,6 +121,24 @@ export default function Owner() {
               placeholder="Experience luxury and transformation"
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2">
+              Homepage Hero Background Video URL
+              <span className="text-xs text-gray-500"> (direct MP4 link)</span>
+            </label>
+            <input
+              type="url"
+              name="heroVideoUrl"
+              value={formData.heroVideoUrl}
+              onChange={handleChange}
+              placeholder="https://videos.pexels.com/video-files/...mp4"
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Use a direct .mp4 link. Example: https://videos.pexels.com/video-files/...mp4
+            </p>
           </div>
 
           <motion.button

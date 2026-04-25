@@ -3,17 +3,26 @@ import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import Link from 'next/link';
 
+const DEFAULT_HERO_VIDEO = 'https://videos.pexels.com/video-files/5682545/5682545-sd_640_360_25fps.mp4';
+
+const isDirectMp4Url = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return /^https?:\/\/.+\.mp4(\?.*)?$/i.test(url.trim());
+};
+
 export default function Hero() {
   const [settings, setSettings] = useState(null);
-  const [heroVideo, setHeroVideo] = useState('https://videos.pexels.com/video-files/5682545/5682545-sd_640_360_25fps.mp4');
+  const [heroVideo, setHeroVideo] = useState(DEFAULT_HERO_VIDEO);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const response = await settingsAPI.get();
         setSettings(response.data);
-        if (response.data.heroVideoUrl) {
-          setHeroVideo(response.data.heroVideoUrl);
+        if (isDirectMp4Url(response.data.heroVideoUrl)) {
+          setHeroVideo(response.data.heroVideoUrl.trim());
+        } else {
+          setHeroVideo(DEFAULT_HERO_VIDEO);
         }
       } catch (error) {
         console.error('Failed to fetch settings:', error);
@@ -29,6 +38,8 @@ export default function Hero() {
         autoPlay
         muted
         loop
+        playsInline
+        onError={() => setHeroVideo(DEFAULT_HERO_VIDEO)}
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src={heroVideo} type="video/mp4" />
