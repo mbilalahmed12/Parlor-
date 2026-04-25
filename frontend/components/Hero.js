@@ -1,29 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import Link from 'next/link';
 
-const DEFAULT_HERO_VIDEO = 'https://videos.pexels.com/video-files/5682545/5682545-sd_640_360_25fps.mp4';
-
-const isDirectMp4Url = (url) => {
-  if (!url || typeof url !== 'string') return false;
-  return /^https?:\/\/.+\.mp4(\?.*)?$/i.test(url.trim());
-};
+const FORCED_HERO_VIDEO = 'https://videos.pexels.com/video-files/4786784/4786784-uhd_3840_2160_30fps.mp4';
+const COMPATIBILITY_FALLBACK_VIDEO = 'https://videos.pexels.com/video-files/5682545/5682545-sd_640_360_25fps.mp4';
 
 export default function Hero() {
   const [settings, setSettings] = useState(null);
-  const [heroVideo, setHeroVideo] = useState(DEFAULT_HERO_VIDEO);
+  const [heroVideo, setHeroVideo] = useState(FORCED_HERO_VIDEO);
+  const [hasFallbackTried, setHasFallbackTried] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const response = await settingsAPI.get();
         setSettings(response.data);
-        if (isDirectMp4Url(response.data.heroVideoUrl)) {
-          setHeroVideo(response.data.heroVideoUrl.trim());
-        } else {
-          setHeroVideo(DEFAULT_HERO_VIDEO);
-        }
+        setHeroVideo(FORCED_HERO_VIDEO);
       } catch (error) {
         console.error('Failed to fetch settings:', error);
       }
@@ -31,15 +25,44 @@ export default function Hero() {
     fetchSettings();
   }, []);
 
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    videoEl.load();
+    const playPromise = videoEl.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        // Keep silent if browser blocks autoplay in specific environments.
+      });
+    }
+  }, [heroVideo]);
+
+  const handleVideoError = () => {
+    if (!hasFallbackTried && heroVideo !== FORCED_HERO_VIDEO) {
+      setHasFallbackTried(true);
+      setHeroVideo(FORCED_HERO_VIDEO);
+      return;
+    }
+
+    if (heroVideo !== COMPATIBILITY_FALLBACK_VIDEO) {
+      setHeroVideo(COMPATIBILITY_FALLBACK_VIDEO);
+    }
+  };
+
   return (
     <section className="relative h-screen w-full overflow-hidden pt-16">
       {/* Video Background */}
       <video
+        key={heroVideo}
+        ref={videoRef}
         autoPlay
+        defaultMuted
         muted
         loop
+        preload="auto"
         playsInline
-        onError={() => setHeroVideo(DEFAULT_HERO_VIDEO)}
+        onError={handleVideoError}
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src={heroVideo} type="video/mp4" />

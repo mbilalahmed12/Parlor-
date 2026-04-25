@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
+import { FiArrowLeft } from 'react-icons/fi';
 
-export default function Settings() {
+export default function Settings({ onBack }) {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,6 +58,19 @@ export default function Settings() {
 
   return (
     <form onSubmit={handleSave} className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">Settings</h2>
+        <motion.button
+          whileHover={{ x: -2 }}
+          whileTap={{ scale: 0.98 }}
+          type="button"
+          onClick={() => onBack && onBack()}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+        >
+          <FiArrowLeft /> Back
+        </motion.button>
+      </div>
+
       {/* Parlor Information */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}

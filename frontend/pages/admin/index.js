@@ -149,7 +149,7 @@ export default function Admin() {
               {activeTab === 'services' && <Services />}
               {activeTab === 'bookings' && <Bookings />}
               {activeTab === 'reviews' && <Reviews />}
-              {activeTab === 'settings' && <Settings />}
+              {activeTab === 'settings' && <Settings onBack={() => setActiveTab('dashboard')} />}
               {activeTab === 'owner' && isOwner && <Owner />}
             </motion.div>
           </AnimatePresence>
