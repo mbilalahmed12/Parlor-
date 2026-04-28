@@ -71,8 +71,8 @@ export default function Hero({ activeTab, onTabChange }) {
 
       <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] max-w-[1500px] flex-col px-4 pb-10 lg:px-10">
         <div className="mb-8 flex items-center justify-between gap-4">
-          <div className="text-[3rem] font-semibold leading-none tracking-[-0.08em] text-secondary md:text-[4.5rem]" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
-            it&apos;s beauty
+            <div className="text-[3rem] font-semibold leading-none tracking-[-0.08em] text-secondary md:text-[4.5rem]" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
+              {settings?.parlorName || 'Elegant Edge'}
           </div>
 
           <div className="flex items-center gap-3">
@@ -129,15 +129,7 @@ export default function Hero({ activeTab, onTabChange }) {
               className="whitespace-pre-line text-[3.6rem] font-extrabold leading-[0.91] tracking-[-0.06em] text-black sm:text-[4.2rem] md:text-[5rem] lg:text-[6.8rem]"
               style={{ fontFamily: 'Oswald, Arial Narrow, Arial, sans-serif' }}
             >
-              GET A DISCOUNT
-              <br />
-              UP TO 50% FOR
-              <br />
-              ALL SERVICES AT
-              <br />
-              OUR BEAUTY
-              <br />
-              SALON IN DUBAI
+              {headline}
             </motion.h1>
             <p className="mt-6 max-w-[540px] text-sm uppercase tracking-widest text-[#2d261f]">{locationText}</p>
           </div>
