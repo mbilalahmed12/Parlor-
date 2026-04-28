@@ -4,7 +4,7 @@ import { settingsAPI } from '@/lib/api';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FiChevronRight } from 'react-icons/fi';
 
-// Updated to use professional portrait with optimized styling
+// Professional portrait image - updated April 28, 2026
 const HERO_IMAGE = '/portrait.jpg';
 
 const formatTimeLeft = (targetDate) => {
