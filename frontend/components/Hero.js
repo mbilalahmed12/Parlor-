@@ -4,8 +4,8 @@ import { settingsAPI } from '@/lib/api';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FiChevronRight } from 'react-icons/fi';
 
-// Professional portrait image - updated April 28, 2026
-const HERO_IMAGE = '/portrait.jpg';
+// User-provided portrait cutout
+const HERO_IMAGE = '/portrait-cutout.png';
 
 const formatTimeLeft = (targetDate) => {
   if (!targetDate) return '00 : 00 : 00 : 00';

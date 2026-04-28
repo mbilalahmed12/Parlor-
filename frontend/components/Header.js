@@ -53,7 +53,7 @@ export default function Header() {
         >
           <Link href="/" className="flex items-center gap-3">
             <span className="text-[2.2rem] font-semibold leading-none tracking-[-0.08em] text-black" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
-              it&apos;s beauty
+                {settings?.parlorName || 'Elegant Edge'}
             </span>
           </Link>
         </motion.div>
