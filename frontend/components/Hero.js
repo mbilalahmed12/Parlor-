@@ -4,7 +4,8 @@ import { settingsAPI } from '@/lib/api';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FiChevronRight } from 'react-icons/fi';
 
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80';
+// Updated to use professional portrait with optimized styling
+const HERO_IMAGE = '/portrait.jpg';
 
 const formatTimeLeft = (targetDate) => {
   if (!targetDate) return '00 : 00 : 00 : 00';
