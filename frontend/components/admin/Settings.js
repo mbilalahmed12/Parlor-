@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { FiArrowLeft } from 'react-icons/fi';
+import Cropper from 'react-easy-crop';
+import { fileToDataUrl, getCroppedImgDataUrl } from '@/lib/imageCrop';
 
 const toDateTimeLocal = (dateValue) => {
   if (!dateValue) return '';
@@ -31,19 +33,15 @@ const setByPath = (object, path, value) => {
   return clone;
 };
 
-const fileToDataUrl = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
-
 export default function Settings({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({});
   const [whyUsText, setWhyUsText] = useState('');
+  const [logoCropSrc, setLogoCropSrc] = useState('');
+  const [logoCrop, setLogoCrop] = useState({ x: 0, y: 0 });
+  const [logoZoom, setLogoZoom] = useState(1);
+  const [logoCropPixels, setLogoCropPixels] = useState(null);
 
   useEffect(() => {
     fetchSettings();
@@ -123,10 +121,30 @@ export default function Settings({ onBack }) {
 
     try {
       const dataUrl = await fileToDataUrl(file);
-      setFormData((prev) => ({ ...prev, parlorLogoUrl: dataUrl }));
-      toast.success('Logo loaded. Click Save All Changes to publish.');
+      setLogoCropSrc(dataUrl);
+      setLogoCrop({ x: 0, y: 0 });
+      setLogoZoom(1);
+      setLogoCropPixels(null);
     } catch (error) {
       toast.error('Failed to load image');
+    }
+  };
+
+  const onLogoCropComplete = useCallback((_, croppedAreaPixels) => {
+    setLogoCropPixels(croppedAreaPixels);
+  }, []);
+
+  const handleApplyLogoCrop = async () => {
+    if (!logoCropSrc || !logoCropPixels) return;
+
+    try {
+      const croppedDataUrl = await getCroppedImgDataUrl(logoCropSrc, logoCropPixels, 'image/png');
+      setFormData((prev) => ({ ...prev, parlorLogoUrl: croppedDataUrl }));
+      setLogoCropSrc('');
+      setLogoCropPixels(null);
+      toast.success('Logo cropped. Click Save All Changes to publish.');
+    } catch (error) {
+      toast.error('Failed to crop image');
     }
   };
 
@@ -461,6 +479,55 @@ export default function Settings({ onBack }) {
           ))}
         </div>
       </motion.section>
+
+      {logoCropSrc && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-5">
+            <h4 className="mb-3 text-lg font-bold text-gray-800">Crop Logo</h4>
+            <div className="relative h-[320px] w-full overflow-hidden rounded-lg bg-gray-100">
+              <Cropper
+                image={logoCropSrc}
+                crop={logoCrop}
+                zoom={logoZoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setLogoCrop}
+                onZoomChange={setLogoZoom}
+                onCropComplete={onLogoCropComplete}
+              />
+            </div>
+            <div className="mt-4">
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Zoom</label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={logoZoom}
+                onChange={(e) => setLogoZoom(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+            <div className="mt-4 flex gap-3">
+              <button
+                type="button"
+                onClick={handleApplyLogoCrop}
+                className="flex-1 rounded-lg bg-primary px-4 py-2 font-semibold text-white"
+              >
+                Apply Crop
+              </button>
+              <button
+                type="button"
+                onClick={() => setLogoCropSrc('')}
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-2 font-semibold text-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <motion.button
         whileHover={{ scale: 1.03 }}
