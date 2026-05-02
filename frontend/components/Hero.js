@@ -108,7 +108,7 @@ export default function Hero({ activeTab, onTabChange }) {
           {locationText}
         </div>
 
-        <div className="grid flex-1 items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-10">
+        <div className="grid flex-1 items-center gap-10 lg:grid-cols-[1fr_1fr] lg:gap-10">
           <div className="max-w-[760px] pl-6 lg:pl-0">
             <motion.h1
               initial={{ opacity: 0, x: -20 }}
@@ -120,24 +120,6 @@ export default function Hero({ activeTab, onTabChange }) {
               {headline}
             </motion.h1>
             <p className="mt-6 max-w-[540px] text-sm uppercase tracking-widest text-[#2d261f]">{locationText}</p>
-          </div>
-
-          <div className="relative w-full max-w-[520px] justify-self-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.12 }}
-              className="relative mx-auto h-[520px] lg:h-[620px]"
-            >
-              {/* Portrait cutout */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <img
-                  src={settings?.heroImageUrl || HERO_IMAGE}
-                  alt="Portrait"
-                  className="portrait-cutout h-[520px] lg:h-[620px] object-cover"
-                />
-              </div>
-            </motion.div>
           </div>
 
           <motion.div
