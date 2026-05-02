@@ -22,6 +22,10 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  heroImageUrl: {
+    type: String,
+    default: '/portrait-cutout.png'
+  },
   heroTitle: {
     type: String,
     default: 'Welcome to Elegant Edge - Where beauty is personalized'
@@ -33,6 +37,10 @@ const settingsSchema = new mongoose.Schema({
   heroCtaText: {
     type: String,
     default: 'Chat on WhatsApp'
+  },
+  discountText: {
+    type: String,
+    default: 'Get a discount'
   },
   offerBanner: {
     enabled: {
@@ -75,6 +83,10 @@ const settingsSchema = new mongoose.Schema({
   contactAddress: {
     type: String,
     default: '123 Beauty Lane, City'
+  },
+  locationsText: {
+    type: String,
+    default: 'BUSINESS BAY, DUBAI MARINA, INTERNET CITY, DIFC, ABU DHABI'
   },
   socialLinks: {
     instagram: { type: String, default: '' },

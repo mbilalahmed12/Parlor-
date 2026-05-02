@@ -49,6 +49,7 @@ router.get('/categories/list', async (req, res) => {
           key,
           label: service.categoryLabel || titleCase(key),
           backgroundVideoUrl: service.categoryVideoUrl || (service.mediaType === 'video' ? service.mediaUrl : ''),
+          backgroundImageUrl: service.mediaType === 'image' ? service.mediaUrl : service.image || '',
           serviceCount: 0,
         });
       }
@@ -58,6 +59,11 @@ router.get('/categories/list', async (req, res) => {
 
       if (!current.backgroundVideoUrl && service.mediaType === 'video' && service.mediaUrl) {
         current.backgroundVideoUrl = service.mediaUrl;
+      }
+
+      if (!current.backgroundImageUrl && (service.mediaType === 'image' || service.image || service.mediaUrl)) {
+        current.backgroundImageUrl =
+          (service.mediaType === 'image' ? service.mediaUrl : '') || service.image || current.backgroundImageUrl;
       }
     });
 

@@ -31,6 +31,14 @@ const setByPath = (object, path, value) => {
   return clone;
 };
 
+const fileToDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+
 export default function Settings({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -106,6 +114,33 @@ export default function Settings({ onBack }) {
     []
   );
 
+  const updateLogoFromFile = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setFormData((prev) => ({ ...prev, parlorLogoUrl: dataUrl }));
+      toast.success('Logo loaded. Click Save All Changes to publish.');
+    } catch (error) {
+      toast.error('Failed to load image');
+    }
+  };
+
+  const handleLogoPaste = async (e) => {
+    const pastedFile = Array.from(e.clipboardData?.items || [])
+      .map((item) => (item.kind === 'file' ? item.getAsFile() : null))
+      .find(Boolean);
+
+    if (pastedFile) {
+      e.preventDefault();
+      await updateLogoFromFile(pastedFile);
+    }
+  };
+
   if (loading) return <p className="text-gray-500">Loading settings...</p>;
 
   return (
@@ -161,6 +196,19 @@ export default function Settings({ onBack }) {
           </div>
 
           <div>
+            <label className="block text-sm font-semibold mb-2">Hero Image URL / Path</label>
+            <input
+              type="text"
+              name="heroImageUrl"
+              value={formData.heroImageUrl || ''}
+              onChange={handleChange}
+              placeholder="/portrait-cutout.png or https://..."
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+            />
+            <p className="text-xs text-gray-500 mt-1">Place your image in <span className="font-mono">/public</span> and set the path like <span className="font-mono">/portrait-cutout.png</span>.</p>
+          </div>
+
+          <div>
             <label className="block text-sm font-semibold mb-2">CTA Button Text</label>
             <input
               type="text"
@@ -168,6 +216,30 @@ export default function Settings({ onBack }) {
               value={formData.heroCtaText || ''}
               onChange={handleChange}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-semibold mb-2">Discount Text</label>
+            <input
+              type="text"
+              name="discountText"
+              value={formData.discountText || ''}
+              onChange={handleChange}
+              placeholder="Get a discount"
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2">Locations (comma or newline separated)</label>
+            <textarea
+              name="locationsText"
+              value={formData.locationsText || ''}
+              onChange={handleChange}
+              rows={2}
+              placeholder="BUSINESS BAY, DUBAI MARINA, INTERNET CITY"
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary resize-y"
             />
           </div>
         </div>
@@ -276,13 +348,30 @@ export default function Settings({ onBack }) {
           <div>
             <label className="block text-sm font-semibold mb-2">Parlor Logo URL</label>
             <input
-              type="url"
+              type="text"
               name="parlorLogoUrl"
               value={formData.parlorLogoUrl || ''}
               onChange={handleChange}
-              placeholder="https://..."
+              placeholder="https://... or data:image/png;base64,..."
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
             />
+            <div className="mt-3 rounded-lg border-2 border-dashed border-gray-300 p-4 text-sm text-gray-600" onPaste={handleLogoPaste}>
+              <p className="font-medium text-gray-700">Upload or paste logo (PNG/JPG)</p>
+              <p className="mt-1">You can paste a copied image directly here (Ctrl+V), or select a file:</p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => updateLogoFromFile(e.target.files?.[0])}
+                className="mt-3 block w-full text-sm text-gray-700"
+              />
+            </div>
+            {formData.parlorLogoUrl && (
+              <img
+                src={formData.parlorLogoUrl}
+                alt="Logo preview"
+                className="mt-3 h-16 w-16 rounded-full border border-gray-200 object-cover"
+              />
+            )}
           </div>
         </div>
       </motion.section>

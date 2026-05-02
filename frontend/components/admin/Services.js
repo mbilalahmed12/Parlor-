@@ -4,6 +4,39 @@ import { servicesAPI } from '@/lib/api';
 import { FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
+const fileToDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Failed to load image'));
+    reader.readAsDataURL(file);
+  });
+
+const cropImageDataUrl = ({ src, x, y, width, height }) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const safeW = Math.max(1, Number(width) || image.width);
+      const safeH = Math.max(1, Number(height) || image.height);
+      const safeX = Math.max(0, Math.min(Number(x) || 0, Math.max(0, image.width - safeW)));
+      const safeY = Math.max(0, Math.min(Number(y) || 0, Math.max(0, image.height - safeH)));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = safeW;
+      canvas.height = safeH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Unable to crop image'));
+        return;
+      }
+
+      ctx.drawImage(image, safeX, safeY, safeW, safeH, 0, 0, safeW, safeH);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    image.onerror = () => reject(new Error('Invalid image'));
+    image.src = src;
+  });
+
 export default function Services() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +56,8 @@ export default function Services() {
     featured: false,
     active: true,
   });
+  const [rawImageData, setRawImageData] = useState('');
+  const [crop, setCrop] = useState({ x: 0, y: 0, width: 1200, height: 800 });
 
   useEffect(() => {
     fetchServices();
@@ -57,6 +92,13 @@ export default function Services() {
         duration: Number(formData.duration),
       };
 
+      if (rawImageData) {
+        const cropped = await cropImageDataUrl({ src: rawImageData, ...crop });
+        payload.mediaType = 'image';
+        payload.mediaUrl = cropped;
+        payload.image = cropped;
+      }
+
       if (editingId) {
         await servicesAPI.update(editingId, payload);
         toast.success('Service updated successfully');
@@ -81,8 +123,26 @@ export default function Services() {
       mediaUrl: service.mediaUrl || service.image || '',
       active: service.active !== false,
     });
+    setRawImageData('');
+    setCrop({ x: 0, y: 0, width: 1200, height: 800 });
     setEditingId(service._id);
     setShowModal(true);
+  };
+
+  const handleImageFile = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setRawImageData(dataUrl);
+      toast.success('Image loaded. Adjust crop then save.');
+    } catch (error) {
+      toast.error('Failed to read image');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -112,6 +172,8 @@ export default function Services() {
       featured: false,
       active: true,
     });
+    setRawImageData('');
+    setCrop({ x: 0, y: 0, width: 1200, height: 800 });
     setEditingId(null);
     setShowModal(false);
   };
@@ -307,6 +369,56 @@ export default function Services() {
                   placeholder="Media URL"
                   className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
                 />
+              </div>
+
+              <div className="rounded-lg border border-gray-200 p-4">
+                <p className="mb-2 text-sm font-semibold text-gray-700">Service background image (upload + crop)</p>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => handleImageFile(e.target.files?.[0])}
+                  className="mb-3 block w-full text-sm text-gray-700"
+                />
+                {rawImageData && (
+                  <>
+                    <img src={rawImageData} alt="Crop source" className="mb-3 h-40 w-full rounded-md border border-gray-200 object-contain bg-gray-50" />
+                    <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                      <input
+                        type="number"
+                        min="0"
+                        value={crop.x}
+                        onChange={(e) => setCrop((prev) => ({ ...prev, x: Number(e.target.value) || 0 }))}
+                        placeholder="x"
+                        className="px-3 py-2 border border-gray-200 rounded"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        value={crop.y}
+                        onChange={(e) => setCrop((prev) => ({ ...prev, y: Number(e.target.value) || 0 }))}
+                        placeholder="y"
+                        className="px-3 py-2 border border-gray-200 rounded"
+                      />
+                      <input
+                        type="number"
+                        min="1"
+                        value={crop.width}
+                        onChange={(e) => setCrop((prev) => ({ ...prev, width: Number(e.target.value) || 1 }))}
+                        placeholder="width"
+                        className="px-3 py-2 border border-gray-200 rounded"
+                      />
+                      <input
+                        type="number"
+                        min="1"
+                        value={crop.height}
+                        onChange={(e) => setCrop((prev) => ({ ...prev, height: Number(e.target.value) || 1 }))}
+                        placeholder="height"
+                        className="px-3 py-2 border border-gray-200 rounded"
+                      />
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">Crop values are in pixels from top-left (x, y, width, height).</p>
+                  </>
+                )}
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer">

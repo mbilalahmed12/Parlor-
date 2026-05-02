@@ -34,6 +34,9 @@ router.put('/', auth, authorize('owner'), async (req, res) => {
       heroTitle,
       heroSubtitle,
       heroCtaText,
+      heroImageUrl,
+      discountText,
+      locationsText,
       offerBanner,
       whyUsTitle,
       whyUsPoints,
@@ -49,6 +52,9 @@ router.put('/', auth, authorize('owner'), async (req, res) => {
     if (parlorDescription !== undefined) settings.parlorDescription = parlorDescription;
     if (parlorLogoUrl !== undefined) settings.parlorLogoUrl = parlorLogoUrl;
     if (heroVideoUrl !== undefined) settings.heroVideoUrl = heroVideoUrl;
+    if (heroImageUrl !== undefined) settings.heroImageUrl = heroImageUrl;
+    if (discountText !== undefined) settings.discountText = discountText;
+    if (locationsText !== undefined) settings.locationsText = locationsText;
     if (heroTitle !== undefined) settings.heroTitle = heroTitle;
     if (heroSubtitle !== undefined) settings.heroSubtitle = heroSubtitle;
     if (heroCtaText !== undefined) settings.heroCtaText = heroCtaText;

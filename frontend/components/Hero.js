@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import { FaWhatsapp } from 'react-icons/fa';
-import { FiChevronRight } from 'react-icons/fi';
 
-// User-provided portrait cutout
+// Fallback portrait path; admin can override via settings.heroImageUrl
 const HERO_IMAGE = '/portrait-cutout.png';
 
 const formatTimeLeft = (targetDate) => {
@@ -63,7 +62,7 @@ export default function Hero({ activeTab, onTabChange }) {
   }, [settings?.contactPhone, settings?.socialLinks?.whatsapp]);
 
   const headline = settings?.heroTitle || 'Welcome to Elegant Edge\nWhere beauty is personalized';
-  const locationText = 'BUSINESS BAY, DUBAI MARINA, INTERNET CITY, DIFC, ABU DHABI';
+  const locationText = settings?.locationsText || 'BUSINESS BAY, DUBAI MARINA, INTERNET CITY, DIFC, ABU DHABI';
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#c3c9aa] pt-24 text-secondary">
@@ -105,22 +104,11 @@ export default function Hero({ activeTab, onTabChange }) {
           </div>
         </div>
 
-        <div className="mb-10 flex flex-wrap items-center justify-center gap-4 text-[0.95rem] uppercase tracking-[0.18em] text-[#2d261f] lg:justify-start">
-          {['Nails', 'Hair', 'Brows & Lashes', 'Prices', 'Blog', 'Contact'].map((item) => (
-            <button key={item} type="button" className="flex items-center gap-2 transition-colors hover:text-black" onClick={() => item === 'Contact' ? document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) : document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}>
-              <span>{item}</span>
-              {item !== 'Contact' && <FiChevronRight size={14} className="opacity-60" />}
-            </button>
-          ))}
-          <span className="rounded-full bg-black px-4 py-1 text-[0.8rem] font-semibold tracking-normal text-white">Dubai</span>
-          <span className="rounded-full border border-black/50 px-4 py-1 text-[0.8rem] tracking-normal text-secondary">Abu Dhabi</span>
-        </div>
-
         <div className="mb-8 text-center text-[1rem] font-medium uppercase tracking-[0.16em] text-secondary lg:text-left">
           {locationText}
         </div>
 
-        <div className="grid flex-1 items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-12">
+        <div className="grid flex-1 items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-10">
           <div className="max-w-[760px] pl-6 lg:pl-0">
             <motion.h1
               initial={{ opacity: 0, x: -20 }}
@@ -134,7 +122,7 @@ export default function Hero({ activeTab, onTabChange }) {
             <p className="mt-6 max-w-[540px] text-sm uppercase tracking-widest text-[#2d261f]">{locationText}</p>
           </div>
 
-          <div className="relative w-full max-w-[520px]">
+          <div className="relative w-full max-w-[520px] justify-self-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -144,18 +132,10 @@ export default function Hero({ activeTab, onTabChange }) {
               {/* Portrait cutout */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <img
-                  src={HERO_IMAGE}
+                  src={settings?.heroImageUrl || HERO_IMAGE}
                   alt="Portrait"
                   className="portrait-cutout h-[520px] lg:h-[620px] object-cover"
                 />
-              </div>
-
-              {/* Promo card */}
-              <div className="absolute right-0 top-1/3 w-[320px] lg:w-[360px] rounded-3xl bg-[#efe9d7] p-6 shadow-[0_20px_40px_rgba(0,0,0,0.18)] text-[#2d261f]">
-                <div className="text-sm font-medium opacity-80">Promotion will end in:</div>
-                <div className="mt-4 mb-4 text-[2.2rem] font-mono font-semibold">{timeLeft}</div>
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full rounded-full bg-black px-6 py-3 text-center text-white font-medium">{settings?.heroCtaText || 'Book now'}</a>
-                <div className="mt-3 text-xs opacity-70">Available for new customers only</div>
               </div>
             </motion.div>
           </div>
@@ -164,10 +144,10 @@ export default function Hero({ activeTab, onTabChange }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mx-auto w-full max-w-[420px] rounded-[36px] bg-[#e8e2c8] p-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
+            className="mx-auto w-full max-w-[420px] rounded-[36px] bg-[#e8e2c8] p-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.12)] lg:mx-0"
           >
             <p className="mb-3 text-[1.1rem] uppercase tracking-[0.14em] text-[#6a6252]">
-              {settings?.offerBanner?.text || 'Offer ending soon'}
+              {settings?.discountText || settings?.offerBanner?.text || 'Offer ending soon'}
             </p>
             <div className="mb-4 text-[2.8rem] font-semibold tracking-[0.12em] text-[#8a8876]" style={{ fontFamily: 'Courier New, monospace' }}>
               {timeLeft}

@@ -45,7 +45,7 @@ export default function Services({ audience = 'her' }) {
   };
 
   return (
-    <section id="services" className="py-20 px-4 bg-light">
+    <section id="services" className="py-20 px-4 bg-[radial-gradient(circle_at_top,#efe8d6_0%,#e9dfca_40%,#e4d7bf_100%)]">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,7 +54,7 @@ export default function Services({ audience = 'her' }) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-[#21170f]" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
             {audience === 'him' ? 'For Him' : 'For Her'} Services
           </h2>
           <p className="text-[#4a3b2f] text-lg max-w-2xl mx-auto">
@@ -88,9 +88,9 @@ export default function Services({ audience = 'her' }) {
                 key={category.key}
                 variants={itemVariants}
                 whileHover={{ y: -10 }}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow"
+                className="group overflow-hidden rounded-[28px] border border-black/10 bg-white/70 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition-shadow hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
               >
-                <div className="relative h-48 bg-gradient-to-br from-primary/35 to-secondary/35 flex items-center justify-center">
+                <div className="relative h-56 bg-gradient-to-br from-primary/35 to-secondary/35 flex items-center justify-center">
                   {category.backgroundVideoUrl ? (
                     <video
                       src={category.backgroundVideoUrl}
@@ -98,17 +98,27 @@ export default function Services({ audience = 'her' }) {
                       muted
                       loop
                       playsInline
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : category.backgroundImageUrl ? (
+                    <img
+                      src={category.backgroundImageUrl}
+                      alt={category.label}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
                     <div className="text-5xl text-primary">{category.label?.charAt(0) || 'S'}</div>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+                  <div className="absolute left-4 bottom-4 rounded-full bg-white/85 px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-black">
+                    {category.serviceCount} service{category.serviceCount > 1 ? 's' : ''}
+                  </div>
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-secondary">{category.label}</h3>
-                  <p className="text-gray-600 mb-4 mt-2">
-                    {category.serviceCount} service{category.serviceCount > 1 ? 's' : ''}
+                  <h3 className="text-2xl font-bold text-[#2c2116]" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>{category.label}</h3>
+                  <p className="text-[#4d3c2f] mb-4 mt-2">
+                    Explore curated treatments tailored by our specialists.
                   </p>
 
                   <Link href={`/services/${encodeURIComponent(category.key)}?audience=${audience}`}>

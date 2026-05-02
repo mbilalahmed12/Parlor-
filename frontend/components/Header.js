@@ -10,6 +10,7 @@ import { settingsAPI } from '@/lib/api';
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
   const { user, token, logout } = useAuthStore();
   const router = useRouter();
 
@@ -25,26 +26,26 @@ export default function Header() {
     fetchSettings();
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 70);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const handleLogout = () => {
     logout();
     router.push('/');
   };
 
-  const menuItems = [
-    { label: 'Nails', href: '/#services' },
-    { label: 'Hair', href: '/#services' },
-    { label: 'Brows & Lashes', href: '/#services' },
-    { label: 'Prices', href: '/#services' },
-    { label: 'Blog', href: '/#services' },
-    { label: 'Contact', href: '/#contact' },
-  ];
+  const menuItems = [{ label: 'Services', href: '/#services' }, { label: 'Contact', href: '/#contact' }];
 
   const whatsappDigits = String(settings?.socialLinks?.whatsapp || settings?.contactPhone || '').replace(/[^\d]/g, '');
   const whatsappHref = whatsappDigits ? `https://wa.me/${whatsappDigits}` : '/booking';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#c3c9aa]/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-4 lg:px-10">
+    <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-all duration-300 ${scrolled ? 'bg-[#c3c9aa]/95 shadow-[0_8px_24px_rgba(0,0,0,0.12)]' : 'bg-[#c3c9aa]/80'}`}>
+      <nav className={`mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 transition-all duration-300 lg:px-10 ${scrolled ? 'py-2.5' : 'py-4'}`}>
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -52,9 +53,28 @@ export default function Header() {
           transition={{ duration: 0.5 }}
         >
           <Link href="/" className="flex items-center gap-3">
-            <span className="text-[2.2rem] font-semibold leading-none tracking-[-0.08em] text-black" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
+            {scrolled ? (
+              <>
+                {settings?.parlorLogoUrl ? (
+                  <img
+                    src={settings.parlorLogoUrl}
+                    alt={`${settings?.parlorName || 'Elegant Edge'} logo`}
+                    className="h-11 w-11 rounded-full object-cover border border-black/20 bg-white"
+                  />
+                ) : (
+                  <span className="grid h-11 w-11 place-items-center rounded-full bg-black text-xs font-bold tracking-[0.2em] text-white">
+                    EE
+                  </span>
+                )}
+                <span className="text-lg font-semibold leading-none tracking-[-0.02em] text-black" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
+                  {settings?.parlorName || 'Elegant Edge'}
+                </span>
+              </>
+            ) : (
+              <span className="text-[2.2rem] font-semibold leading-none tracking-[-0.08em] text-black" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
                 {settings?.parlorName || 'Elegant Edge'}
-            </span>
+              </span>
+            )}
           </Link>
         </motion.div>
 
@@ -79,8 +99,6 @@ export default function Header() {
               </Link>
             </motion.div>
           ))}
-          <span className="rounded-full bg-black px-4 py-1 text-[0.78rem] font-semibold text-white">Dubai</span>
-          <span className="rounded-full border border-black/40 px-4 py-1 text-[0.78rem] text-black">Abu Dhabi</span>
         </motion.div>
 
         {/* Right Actions */}
