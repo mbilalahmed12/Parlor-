@@ -134,6 +134,9 @@ export default function Header() {
           >
             {settings?.contactPhone || '+971 54 247 8604'}
           </a>
+          <Link href="/login" className="rounded-full border border-black/30 bg-white px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-black transition-transform hover:-translate-y-0.5">
+            Admin Login
+          </Link>
           {token ? (
             <>
               <Link href="/admin" className="text-sm font-semibold uppercase tracking-[0.12em] text-black underline decoration-black/40 underline-offset-4">
@@ -179,6 +182,13 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+          <Link
+            href="/login"
+            className="block rounded-full border border-black/30 bg-white px-4 py-3 text-center text-sm font-semibold uppercase tracking-[0.12em] text-black"
+            onClick={() => setIsOpen(false)}
+          >
+            Admin Login
+          </Link>
           {token ? (
             <>
               <Link href="/admin" className="block text-sm font-semibold uppercase tracking-[0.12em] text-black">
