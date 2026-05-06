@@ -70,14 +70,14 @@ export default function Hero({ activeTab, onTabChange }) {
           muted
           loop
           playsInline
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          className="absolute inset-0 z-0 h-full w-full object-cover"
           src={settings.heroVideoUrl}
         />
       )}
 
-      <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.45),transparent_26%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.25),transparent_20%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.15),transparent_25)]" />
+      <div className="absolute inset-0 z-10 opacity-30 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.45),transparent_26%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.25),transparent_20%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.15),transparent_25%)]" />
 
-      <div className="relative mx-auto z-10 flex min-h-[calc(100vh-6rem)] max-w-[1500px] flex-col px-4 pb-10 lg:px-10">
+      <div className="relative mx-auto z-20 flex min-h-[calc(100vh-6rem)] max-w-[1500px] flex-col px-4 pb-10 lg:px-10">
         <div className="mb-8 flex items-center justify-between gap-4">
             <div className="text-[3rem] font-semibold leading-none tracking-[-0.08em] text-secondary md:text-[4.5rem]" style={{ fontFamily: 'Georgia, Times New Roman, serif' }}>
               {settings?.parlorName || 'Elegant Edge'}
