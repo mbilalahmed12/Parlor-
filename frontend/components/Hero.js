@@ -26,6 +26,7 @@ export default function Hero({ activeTab, onTabChange }) {
   const [settings, setSettings] = useState(null);
   const [timeLeft, setTimeLeft] = useState('00 : 00 : 00 : 00');
   const videoRef = useRef(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -78,23 +79,46 @@ export default function Hero({ activeTab, onTabChange }) {
     tryPlay();
   }, [settings?.heroVideoUrl]);
 
+  const handleCanPlay = () => {
+    setVideoLoaded(true);
+  };
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#c3c9aa] pt-24 text-secondary">
       {/* Background video if provided */}
-      {settings?.heroVideoUrl && (
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 z-0 h-full w-full object-cover"
-          src={settings.heroVideoUrl}
+      {/* Video or placeholder */}
+      <div className="absolute inset-0 z-0 h-full w-full">
+        {/* Placeholder (poster) shown immediately while video loads */}
+        <div
+          aria-hidden
+          className="absolute inset-0 h-full w-full bg-center bg-cover transition-opacity duration-500"
+          style={{
+            backgroundImage: settings?.heroImageUrl ? `url(${settings.heroImageUrl})` : undefined,
+            opacity: videoLoaded ? 0 : 1,
+            filter: videoLoaded ? 'blur(2px) brightness(0.85)' : 'none',
+          }}
         />
-      )}
 
-      <div className="absolute inset-0 z-10 opacity-30 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.45),transparent_26%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.25),transparent_20%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.15),transparent_25%)]" />
+        {settings?.heroVideoUrl && (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={settings.heroImageUrl || undefined}
+            onCanPlay={handleCanPlay}
+            onPlaying={handleCanPlay}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ opacity: videoLoaded ? 1 : 0, transition: 'opacity 600ms ease' }}
+            src={settings.heroVideoUrl}
+          />
+        )}
+
+        <div className="absolute inset-0 z-10 opacity-30 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.45),transparent_26%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.25),transparent_20%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.15),transparent_25%)]" />
+
+      </div>
 
       <div className="relative mx-auto z-20 flex min-h-[calc(100vh-6rem)] max-w-[1500px] flex-col px-4 pb-10 lg:px-10">
         <div className="mb-8 flex items-center justify-between gap-4">
