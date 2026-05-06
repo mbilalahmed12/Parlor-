@@ -59,6 +59,7 @@ export const reviewsAPI = {
 export const settingsAPI = {
   get: () => api.get('/settings'),
   update: (data) => api.put('/settings', data),
+  uploadVideo: (formData) => api.post('/settings/upload-video', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
 
 export default api;

@@ -42,6 +42,7 @@ export default function Settings({ onBack }) {
   const [logoCrop, setLogoCrop] = useState({ x: 0, y: 0 });
   const [logoZoom, setLogoZoom] = useState(1);
   const [logoCropPixels, setLogoCropPixels] = useState(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -211,6 +212,42 @@ export default function Settings({ onBack }) {
               placeholder="https://..."
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary"
             />
+
+            <div className="mt-3 rounded-lg border-2 border-dashed border-gray-300 p-4 text-sm text-gray-600">
+              <p className="font-medium text-gray-700">Upload Video (MP4, WebM)</p>
+              <p className="mt-1">Drag & drop a video here or click to select a file to replace the hero background video.</p>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    setUploadingVideo(true);
+                    const fd = new FormData();
+                    fd.append('video', file);
+                    const resp = await settingsAPI.uploadVideo(fd);
+                    const url = resp.data?.url || resp.data?.settings?.heroVideoUrl;
+                    setFormData((prev) => ({ ...prev, heroVideoUrl: url }));
+                    toast.success('Video uploaded and set for hero');
+                  } catch (err) {
+                    toast.error('Failed to upload video');
+                    console.error(err);
+                  } finally {
+                    setUploadingVideo(false);
+                  }
+                }}
+                className="mt-3 block w-full text-sm text-gray-700"
+              />
+              {uploadingVideo && <p className="mt-2 text-xs text-gray-500">Uploading...</p>}
+            </div>
+
+            {formData.heroVideoUrl && (
+              <div className="mt-3">
+                <label className="block text-sm font-semibold mb-2">Current Hero Video Preview</label>
+                <video src={formData.heroVideoUrl} controls className="max-h-48 w-full object-cover rounded-md border" />
+              </div>
+            )}
           </div>
 
           <div>

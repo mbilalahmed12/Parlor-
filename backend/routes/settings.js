@@ -3,6 +3,35 @@ const Settings = require('../models/Settings');
 const auth = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'videos');
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname) || '';
+    const name = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+    cb(null, name + ext);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 200 * 1024 * 1024 }, // 200MB limit
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('video/')) {
+      return cb(new Error('Only video files are allowed'));
+    }
+    cb(null, true);
+  }
+});
 
 // Get settings (public)
 router.get('/', async (req, res) => {
@@ -86,3 +115,24 @@ router.put('/', auth, authorize('owner'), async (req, res) => {
 });
 
 module.exports = router;
+
+// Upload hero video (admin only)
+router.post('/upload-video', auth, authorize('owner'), upload.single('video'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+
+    const url = `${req.protocol}://${req.get('host')}/uploads/videos/${req.file.filename}`;
+
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = new Settings();
+    }
+    settings.heroVideoUrl = url;
+    settings.updatedAt = Date.now();
+    await settings.save();
+
+    res.json({ message: 'Video uploaded', url, settings });
+  } catch (err) {
+    res.status(500).json({ message: 'Upload failed', error: err.message });
+  }
+});

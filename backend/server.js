@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 
@@ -42,6 +43,9 @@ app.use('/api/services', require('./routes/services'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/settings', require('./routes/settings'));
+
+// Serve uploaded files (videos/images)
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // Health check
 app.get('/api/health', (req, res) => {
