@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { settingsAPI } from '@/lib/api';
 import { FaWhatsapp } from 'react-icons/fa';
@@ -25,6 +25,7 @@ const buildWhatsAppUrl = (phone, text) => {
 export default function Hero({ activeTab, onTabChange }) {
   const [settings, setSettings] = useState(null);
   const [timeLeft, setTimeLeft] = useState('00 : 00 : 00 : 00');
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -61,15 +62,33 @@ export default function Hero({ activeTab, onTabChange }) {
   const headline = settings?.heroTitle || 'Welcome to Elegant Edge\nWhere beauty is personalized';
   const locationText = settings?.locationsText || 'BUSINESS BAY, DUBAI MARINA, INTERNET CITY, DIFC, ABU DHABI';
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !settings?.heroVideoUrl) return;
+
+    const tryPlay = async () => {
+      try {
+        video.muted = true;
+        await video.play();
+      } catch (error) {
+        // Some browsers may block autoplay until a user interaction.
+      }
+    };
+
+    tryPlay();
+  }, [settings?.heroVideoUrl]);
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#c3c9aa] pt-24 text-secondary">
       {/* Background video if provided */}
       {settings?.heroVideoUrl && (
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop
           playsInline
+          preload="auto"
           className="absolute inset-0 z-0 h-full w-full object-cover"
           src={settings.heroVideoUrl}
         />
